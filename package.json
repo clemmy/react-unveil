@@ -1,0 +1,32 @@
+{
+  "name": "react-unveil",
+  "version": "0.0.1",
+  "description": "Lightweight and customizable React component that helps save real estate by limiting content height, with the option to expand and hide the content.",
+  "main": "lib/react-unveil.js",
+  "repository": "https://github.com/clemmy/react-unveil.git",
+  "author": "Clement Hoang <clement.hoang24@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "build": "rollup -c",
+    "test": "",
+    "clean": "rm -rf lib",
+    "storybook": "start-storybook -p 9001 -c .storybook"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@storybook/react": "^3.3.15",
+    "babel-core": "^6.26.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "rollup": "^0.53.4",
+    "rollup-plugin-babel": "^3.0.3"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0"
+  }
+}
