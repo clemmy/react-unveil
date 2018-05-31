@@ -14,12 +14,6 @@ const WRAPPER_STYLES = {
   position: 'relative', // so that absolute positioning of More/Less components are relative to this
 };
 
-const EXPANDED_STYLES = {
-  // height: 'auto',
-  // height: 500,
-  // height: 'fit-content',
-};
-
 class Unveil extends Component {
   static propTypes = {
     className: PropTypes.string, // TODO: double check if this is the right type
@@ -82,12 +76,18 @@ class Unveil extends Component {
     if (this.state.isDirty) {
       this.measure();
     }
+
+    // setInterval(() => {
+    //   this.setState({
+    //     isDirty: true,
+    //   });
+    //   console.log('dirty');
+    // }, 3000);
   }
 
   measure = () => {
+    console.log('measure');
     this.setState({
-      // actualHeight: this.childrenWrapper.clientHeight,
-      // actualLessHeight: this.lessWrapper.clientHeight,
       actualHeight: this.childrenWrapper.offsetHeight,
       actualLessHeight: this.lessWrapper.offsetHeight,
       isDirty: false,
@@ -96,58 +96,45 @@ class Unveil extends Component {
 
   render() {
     console.log('render');
-    // nothing to be done if no children specified
+    console.log('actual height: ' + this.state.actualHeight);
+    console.log('max height: ' + this.props.maxHeight);
+    // nothing to be done if no children provided
     if (!this.props.children) {
       return null;
     }
 
-    // render invisible children for measurement
-    if (this.state.isDirty) {
-      return (
-        <div style={HIDDEN_STYLES}>
-          <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
-          <div ref={e => (this.lessWrapper = e)}>
-            {this.props.less ? this.props.less()() : null}
-          </div>
+    // invisible children for measurement
+    const Invisible = (
+      <div style={HIDDEN_STYLES}>
+        <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
+        <div ref={e => (this.lessWrapper = e)}>
+          {this.props.less ? this.props.less()() : null}
         </div>
-      );
-    }
+      </div>
+    );
 
-    // nothing to be done if children doesn't surpass maxHeight
-    if (this.state.actualHeight <= this.props.maxHeight) {
-      return this.props.children;
-    }
+    const ShowLess = this.props.less ? this.props.less(this.collapse)() : null;
+    const ShowMore = this.props.more ? this.props.more(this.expand)() : null;
 
-    if (this.state.expanded) {
-      console.log(this.state);
-      return (
-        <div
-          style={{
-            ...WRAPPER_STYLES,
-            ...EXPANDED_STYLES,
-            height: this.state.actualHeight + this.state.actualLessHeight, // should i account for both heights in this div...? maybe just move less out, no need to measure
-            // height: 'auto',
-            ...this.props.style,
-          }}
-        >
-          {this.props.children}
-          {this.props.less ? this.props.less(this.collapse)() : null}
-        </div>
-      );
-    } else {
-      return (
-        <div
-          style={{
-            ...WRAPPER_STYLES,
-            height: this.props.maxHeight,
-            ...this.props.style,
-          }}
-        >
-          {this.props.children}
-          {this.props.more ? this.props.more(this.expand)() : null}
-        </div>
-      );
-    }
+    return (
+      <div
+        style={{
+          ...WRAPPER_STYLES,
+          height: this.state.expanded
+            ? this.state.actualHeight + this.state.actualLessHeight
+            : this.props.maxHeight,
+          ...this.props.style,
+        }}
+      >
+        {this.props.children}
+        {this.state.actualHeight <= this.props.maxHeight
+          ? null
+          : this.state.expanded
+            ? ShowLess
+            : ShowMore}
+        {this.state.isDirty ? Invisible : null}
+      </div>
+    );
   }
 
   componentDidUpdate() {
