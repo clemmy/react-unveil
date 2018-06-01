@@ -25,6 +25,7 @@ class Unveil extends Component {
     onMoreClick: PropTypes.func, // callback when expanded
     onLessClick: PropTypes.func, // callback when collapsed
     expanded: PropTypes.bool, // whether or not to initially be expanded
+    poll: PropTypes.bool, // whether or not to continuously check for children resizing
   };
 
   static defaultProps = {
@@ -33,6 +34,7 @@ class Unveil extends Component {
     more: DefaultMore,
     less: DefaultLess,
     expanded: false,
+    poll: true,
   };
 
   constructor(props) {
@@ -77,16 +79,19 @@ class Unveil extends Component {
       this.measure();
     }
 
-    // setInterval(() => {
-    //   this.setState({
-    //     isDirty: true,
-    //   });
-    //   console.log('dirty');
-    // }, 3000);
+    if (this.props.poll) {
+      this.pollId = setInterval(() => {
+        this.setState({
+          isDirty: true,
+        });
+      }, 100);
+    }
   }
 
   measure = () => {
     console.log('measure');
+    console.log('children height: ' + this.childrenWrapper.offsetHeight);
+    console.log('less height: ' + this.lessWrapper.offsetHeight);
     this.setState({
       actualHeight: this.childrenWrapper.offsetHeight,
       actualLessHeight: this.lessWrapper.offsetHeight,
@@ -96,7 +101,7 @@ class Unveil extends Component {
 
   render() {
     console.log('render');
-    console.log('actual height: ' + this.state.actualHeight);
+    console.log('actual children height: ' + this.state.actualHeight);
     console.log('max height: ' + this.props.maxHeight);
     // nothing to be done if no children provided
     if (!this.props.children) {
@@ -140,6 +145,12 @@ class Unveil extends Component {
   componentDidUpdate() {
     if (this.state.isDirty) {
       this.measure();
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.poll) {
+      clearInterval(this.pollId);
     }
   }
 }
