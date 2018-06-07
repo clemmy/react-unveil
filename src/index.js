@@ -84,7 +84,6 @@ class Unveil extends Component {
   }
 
   markAsDirty = () => {
-    console.log(this);
     console.log('marked as dirty');
     this.setState({
       isDirty: true,
@@ -93,11 +92,9 @@ class Unveil extends Component {
 
   measure = () => {
     console.log('measure');
-    console.log('children height: ' + this.childrenWrapper.offsetHeight);
-    console.log('less height: ' + this.lessWrapper.offsetHeight);
+    console.log('invisible height: ' + this.invisible.scrollHeight);
     this.setState({
-      actualHeight: this.childrenWrapper.offsetHeight,
-      actualLessHeight: this.lessWrapper.offsetHeight,
+      actualHeight: this.invisible.scrollHeight,
       isDirty: false,
     });
   };
@@ -113,11 +110,9 @@ class Unveil extends Component {
 
     // invisible children for measurement
     const Invisible = (
-      <div style={HIDDEN_STYLES}>
-        <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
-        <div ref={e => (this.lessWrapper = e)}>
-          {this.props.less ? this.props.less()() : null}
-        </div>
+      <div id="invisible" ref={e => (this.invisible = e)} style={HIDDEN_STYLES}>
+        <div>{this.props.children}</div>
+        <div>{this.props.less ? this.props.less()() : null}</div>
       </div>
     );
 
@@ -126,10 +121,11 @@ class Unveil extends Component {
 
     return (
       <div
+        id="unveil"
         style={{
           ...WRAPPER_STYLES,
           height: this.state.expanded
-            ? this.state.actualHeight + this.state.actualLessHeight
+            ? this.state.actualHeight
             : this.props.maxHeight,
           ...this.props.style,
         }}
@@ -140,7 +136,7 @@ class Unveil extends Component {
           : this.state.expanded
             ? ShowLess
             : ShowMore}
-        {this.state.isDirty ? Invisible : null}
+        {this.state.isDirty ? Invisible : Invisible}
       </div>
     );
   }
@@ -181,7 +177,9 @@ class AsyncUnveil extends Component {
       <Unveil ref={e => (this.unveilRef.ref = e)} {...this.props}>
         {React.Children.map(this.props.children, child =>
           React.cloneElement(child, {
-            notifyResize: this.unveilRef.ref && this.unveilRef.ref.markAsDirty,
+            notifyResize: this.unveilRef.ref
+              ? this.unveilRef.ref.markAsDirty
+              : undefined,
           })
         )}
       </Unveil>

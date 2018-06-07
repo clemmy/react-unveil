@@ -119,38 +119,7 @@ const RichContent = props => {
 };
 
 storiesOf('React Unveil', module)
-  .add('test', () => <RichContent />)
-  .add('test 2', () => {
-    class Demo extends React.Component {
-      constructor() {
-        super();
-        this.clemmy = {};
-      }
-
-      componentDidMount() {
-        console.log('mounted demo');
-        console.log(this.clemmy);
-      }
-
-      render() {
-        console.log('render demo');
-        // need to wrap it in something?
-        // maybe i should do the other approach with the AsyncObserver thing
-        return (
-          <Unveil
-            ref={el => {
-              this.clemmy.unveil = el;
-            }}
-          >
-            <RichContent clemmy={this.clemmy} other="bb" />
-          </Unveil>
-        );
-      }
-    }
-
-    return <Demo />;
-  })
-  .add('test 3', () => {
+  .add('test', () => {
     // render async, no polling
     // some observer injected into it
     return (
