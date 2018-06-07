@@ -1,0 +1,22 @@
+/* @font-face {
+  font-family: 'Song Myung';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Song Myung Regular'), local('SongMyung-Regular'),
+    url(https://fonts.gstatic.com/s/songmyung/v2/1cX2aUDWAJH5-EIC7DIhr1Sqg8isl8AMv_tjqvb-E3UIti8PC8tTjXno_YVUA1Ot_r7QFaVK_C9L.0.woff2)
+      format('woff2');
+} */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans Regular'), local('OpenSans-Regular'),
+    url(https://fonts.gstatic.com/s/opensans/v15/mem8YaGs126MiZpBA-UFWJ0bf8pkAp6a.woff2)
+      format('woff2');
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  background: yellow;
+}

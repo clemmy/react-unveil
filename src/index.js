@@ -14,19 +14,21 @@ const WRAPPER_STYLES = {
   position: 'relative', // so that absolute positioning of More/Less components are relative to this
 };
 
+const UnveilPropTypes = {
+  className: PropTypes.string, // TODO: double check if this is the right type
+  style: PropTypes.object, // style to apply on wrapper
+  maxHeight: PropTypes.number, // height of "veiled" container
+  children: PropTypes.node,
+  more: PropTypes.func, // render prop that receives a function "expand"
+  less: PropTypes.func, // render prop that receives a function "collapse"
+  onMoreClick: PropTypes.func, // callback when expanded
+  onLessClick: PropTypes.func, // callback when collapsed
+  expanded: PropTypes.bool, // whether or not to initially be expanded
+  poll: PropTypes.bool, // whether or not to continuously check for children resizing, not recommended for production
+};
+
 class Unveil extends Component {
-  static propTypes = {
-    className: PropTypes.string, // TODO: double check if this is the right type
-    style: PropTypes.object, // style to apply on wrapper
-    maxHeight: PropTypes.number, // height of "veiled" container
-    children: PropTypes.node,
-    more: PropTypes.func, // render prop that receives a function "expand"
-    less: PropTypes.func, // render prop that receives a function "collapse"
-    onMoreClick: PropTypes.func, // callback when expanded
-    onLessClick: PropTypes.func, // callback when collapsed
-    expanded: PropTypes.bool, // whether or not to initially be expanded
-    poll: PropTypes.bool, // whether or not to continuously check for children resizing
-  };
+  static propTypes = UnveilPropTypes;
 
   static defaultProps = {
     maxHeight: 300,
@@ -34,7 +36,7 @@ class Unveil extends Component {
     more: DefaultMore,
     less: DefaultLess,
     expanded: false,
-    poll: true,
+    poll: false,
   };
 
   constructor(props) {
@@ -75,18 +77,19 @@ class Unveil extends Component {
   };
 
   componentDidMount() {
+    console.log('mounted unveil');
     if (this.state.isDirty) {
       this.measure();
     }
-
-    if (this.props.poll) {
-      this.pollId = setInterval(() => {
-        this.setState({
-          isDirty: true,
-        });
-      }, 100);
-    }
   }
+
+  markAsDirty = () => {
+    console.log(this);
+    console.log('marked as dirty');
+    this.setState({
+      isDirty: true,
+    });
+  };
 
   measure = () => {
     console.log('measure');
@@ -100,7 +103,7 @@ class Unveil extends Component {
   };
 
   render() {
-    console.log('render');
+    console.log('render unveil');
     console.log('actual children height: ' + this.state.actualHeight);
     console.log('max height: ' + this.props.maxHeight);
     // nothing to be done if no children provided
@@ -147,6 +150,43 @@ class Unveil extends Component {
       this.measure();
     }
   }
+}
+
+class AsyncUnveil extends Component {
+  static propTypes = UnveilPropTypes;
+
+  constructor(props) {
+    super(props);
+
+    this.unveilRef = {};
+  }
+
+  componentDidMount() {
+    console.log('mounted asyncunveil');
+    if (this.props.poll) {
+      this.pollId = setInterval(() => {
+        this.setState({
+          isDirty: true,
+        });
+      }, 100);
+    }
+
+    this.forceUpdate(); // re-render after ref is populated
+  }
+
+  render() {
+    console.log('render async unveil');
+    console.log(this.props);
+    return (
+      <Unveil ref={e => (this.unveilRef.ref = e)} {...this.props}>
+        {React.Children.map(this.props.children, child =>
+          React.cloneElement(child, {
+            notifyResize: this.unveilRef.ref && this.unveilRef.ref.markAsDirty,
+          })
+        )}
+      </Unveil>
+    );
+  }
 
   componentWillUnmount() {
     if (this.props.poll) {
@@ -155,4 +195,4 @@ class Unveil extends Component {
   }
 }
 
-export default Unveil;
+export { AsyncUnveil, Unveil };
