@@ -2,7 +2,8 @@ import React from 'react';
 
 const SHOW_MORE_STYLES = {
   cursor: 'pointer',
-  background: 'linear-gradient( to top, white, rgba(255, 255, 255, 0) )', // can't use 'transparent' since Safari interpolates that as 'transparent black'
+  background:
+    'linear-gradient( to top, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 70%, rgba(255, 255, 255, 0) 100%)', // can't use 'transparent' since Safari interpolates that as 'transparent black'
   position: 'absolute',
   bottom: 0,
   width: '100%',
