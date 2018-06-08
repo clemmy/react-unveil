@@ -9,13 +9,13 @@ const HIDDEN_STYLES = {
 };
 
 const WRAPPER_STYLES = {
-  // transition: '0.4s ease all', // TODO: ensure this style doesn't apply when state is going from dirty -> not dirty
+  transition: '0.4s ease height',
   overflow: 'hidden',
   position: 'relative', // so that absolute positioning of More/Less components are relative to this
 };
 
 const UnveilPropTypes = {
-  className: PropTypes.string, // TODO: double check if this is the right type
+  className: PropTypes.string, // className to apply on the unveil component
   style: PropTypes.object, // style to apply on wrapper
   maxHeight: PropTypes.number, // height of "veiled" container
   children: PropTypes.node,
@@ -77,22 +77,18 @@ class Unveil extends Component {
   };
 
   componentDidMount() {
-    console.log('mounted unveil');
     if (this.state.isDirty) {
       this.measure();
     }
   }
 
   markAsDirty = () => {
-    console.log('marked as dirty');
     this.setState({
       isDirty: true,
     });
   };
 
   measure = () => {
-    console.log('measure');
-    console.log('invisible height: ' + this.invisible.scrollHeight);
     this.setState({
       actualHeight: this.invisible.scrollHeight,
       isDirty: false,
@@ -100,9 +96,6 @@ class Unveil extends Component {
   };
 
   render() {
-    console.log('render unveil');
-    console.log('actual children height: ' + this.state.actualHeight);
-    console.log('max height: ' + this.props.maxHeight);
     // nothing to be done if no children provided
     if (!this.props.children) {
       return null;
@@ -158,7 +151,6 @@ class AsyncUnveil extends Component {
   }
 
   componentDidMount() {
-    console.log('mounted asyncunveil');
     if (this.props.poll) {
       this.pollId = setInterval(() => {
         this.setState({
@@ -171,8 +163,6 @@ class AsyncUnveil extends Component {
   }
 
   render() {
-    console.log('render async unveil');
-    console.log(this.props);
     return (
       <Unveil ref={e => (this.unveilRef.ref = e)} {...this.props}>
         {React.Children.map(this.props.children, child =>
