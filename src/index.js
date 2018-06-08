@@ -44,8 +44,8 @@ class Unveil extends Component {
 
     this.state = {
       expanded: this.props.expanded,
-      actualHeight: 0, // real height of the children
-      actualLessHeight: 0, // real height of the less button
+      invisibleHeight: 0, // measured height of invisible wrapper
+      childrenHeight: 0, // measured height of the invisible children
       isDirty: true, // specifies whether measurement is needed
     };
   }
@@ -90,7 +90,8 @@ class Unveil extends Component {
 
   measure = () => {
     this.setState({
-      actualHeight: this.invisible.scrollHeight,
+      invisibleHeight: this.invisible.scrollHeight,
+      childrenHeight: this.childrenWrapper.scrollHeight,
       isDirty: false,
     });
   };
@@ -103,9 +104,9 @@ class Unveil extends Component {
 
     // invisible children for measurement
     const Invisible = (
-      <div id="invisible" ref={e => (this.invisible = e)} style={HIDDEN_STYLES}>
-        <div>{this.props.children}</div>
-        <div>{this.props.less ? this.props.less()() : null}</div>
+      <div ref={e => (this.invisible = e)} style={HIDDEN_STYLES}>
+        <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
+        {this.props.less ? this.props.less()() : null}
       </div>
     );
 
@@ -114,22 +115,21 @@ class Unveil extends Component {
 
     return (
       <div
-        id="unveil"
         style={{
           ...WRAPPER_STYLES,
           height: this.state.expanded
-            ? this.state.actualHeight
+            ? this.state.invisibleHeight
             : this.props.maxHeight,
           ...this.props.style,
         }}
       >
         {this.props.children}
-        {this.state.actualHeight <= this.props.maxHeight
+        {this.state.childrenHeight <= this.props.maxHeight
           ? null
           : this.state.expanded
             ? ShowLess
             : ShowMore}
-        {this.state.isDirty ? Invisible : Invisible}
+        {this.state.isDirty ? Invisible : null}
       </div>
     );
   }
@@ -163,15 +163,27 @@ class AsyncUnveil extends Component {
   }
 
   render() {
+    // inject notifyResize() when unveilRef is populated
     return (
       <Unveil ref={e => (this.unveilRef.ref = e)} {...this.props}>
-        {React.Children.map(this.props.children, child =>
-          React.cloneElement(child, {
-            notifyResize: this.unveilRef.ref
-              ? this.unveilRef.ref.markAsDirty
-              : undefined,
-          })
-        )}
+        {this.unveilRef.ref
+          ? React.Children.map(this.props.children, child => {
+              // if child is a DOMElement with onLoad, then append notifyResize() to it
+              // otherwise, inject it as a prop
+              if (isDOMElement(child) && shouldAppendNotifyResize(child)) {
+                return React.cloneElement(child, {
+                  onLoad: () => {
+                    child.props.onLoad();
+                    this.unveilRef.ref.markAsDirty();
+                  },
+                });
+              } else {
+                return React.cloneElement(child, {
+                  notifyResize: this.unveilRef.ref.markAsDirty,
+                });
+              }
+            })
+          : this.props.children}
       </Unveil>
     );
   }
@@ -181,6 +193,14 @@ class AsyncUnveil extends Component {
       clearInterval(this.pollId);
     }
   }
+}
+
+function isDOMElement(el) {
+  return React.isValidElement(el) && typeof el.type === 'string';
+}
+
+function shouldAppendNotifyResize(el) {
+  return el.type === 'img';
 }
 
 export { AsyncUnveil, Unveil };
