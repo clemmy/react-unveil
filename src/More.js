@@ -26,6 +26,8 @@ const CARET_DOWN_STYLES = {
 
 const TEXT_STYLES = {};
 
+// absolutely positioned ShowMore element
+
 export default expand => () => (
   <div onClick={expand} style={SHOW_MORE_STYLES}>
     <span style={TEXT_STYLES}>Read More</span>

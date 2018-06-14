@@ -1,6 +1,6 @@
 import React from 'react';
 
-const SHOW_MORE_STYLES = {
+const SHOW_LESS_STYLES = {
   cursor: 'pointer',
   background: 'white',
   width: '100%',
@@ -24,8 +24,10 @@ const CARET_UP_STYLES = {
 
 const TEXT_STYLES = {};
 
+// ShowLess element part of regular document flow
+
 export default collapse => () => (
-  <div onClick={collapse} style={SHOW_MORE_STYLES}>
+  <div onClick={collapse} style={SHOW_LESS_STYLES}>
     <span style={TEXT_STYLES}>Show Less</span>
     <span style={CARET_UP_STYLES} />
   </div>
