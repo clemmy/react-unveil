@@ -53,6 +53,7 @@ class Unveil extends Component {
   expand = () => {
     this.setState(
       {
+        isDirty: true, // corrects height on expand
         expanded: true,
       },
       () => {
@@ -80,6 +81,10 @@ class Unveil extends Component {
     if (this.state.isDirty) {
       this.measure();
     }
+
+    // TODO: find a better solution
+    // currently this race helps to render it properly when the component is initially expanded
+    setTimeout(this.markAsDirty, 500);
   }
 
   markAsDirty = () => {
@@ -104,17 +109,21 @@ class Unveil extends Component {
 
     // invisible children for measurement
     const Invisible = (
-      <div ref={e => (this.invisible = e)} style={HIDDEN_STYLES}>
-        <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
-        {this.props.less ? this.props.less()() : null}
+      <div key="invisible" style={HIDDEN_STYLES}>
+        <div ref={e => (this.invisible = e)}>
+          <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
+          {this.props.less ? this.props.less()() : null}
+        </div>
       </div>
     );
 
     const ShowLess = this.props.less ? this.props.less(this.collapse)() : null;
     const ShowMore = this.props.more ? this.props.more(this.expand)() : null;
 
-    return (
+    // array instead of fragment for backwards compatability
+    return [
       <div
+        key="unveil"
         style={{
           ...WRAPPER_STYLES,
           height: this.state.expanded
@@ -123,15 +132,21 @@ class Unveil extends Component {
           ...this.props.style,
         }}
       >
-        {this.props.children}
+        <div
+          style={{
+            height: this.state.childrenHeight,
+          }}
+        >
+          {this.props.children}
+        </div>
         {this.state.childrenHeight <= this.props.maxHeight
           ? null
           : this.state.expanded
             ? ShowLess
             : ShowMore}
-        {this.state.isDirty ? Invisible : null}
-      </div>
-    );
+      </div>,
+      this.state.isDirty ? Invisible : null,
+    ];
   }
 
   componentDidUpdate() {
