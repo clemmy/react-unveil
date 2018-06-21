@@ -68,7 +68,7 @@ class AsyncComponent extends React.Component {
 
 const RichContent = props => {
   return (
-    <React.Fragment>
+    <div style={{ padding: 6 }}>
       <h1>An Essay I Wrote for Philosophy Class :)</h1>
       {props.withImage ? (
         <img width="100%" src="https://placeimg.com/720/240/tech" />
@@ -167,7 +167,7 @@ const RichContent = props => {
         make for other humans, and it’s logical enough that it should not be
         limited to only humans.
       </p>
-    </React.Fragment>
+    </div>
   );
 };
 
