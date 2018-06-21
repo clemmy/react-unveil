@@ -15,16 +15,15 @@ const WRAPPER_STYLES = {
 };
 
 const UnveilPropTypes = {
+  render: PropTypes.func, // render prop for the children to contain in the veil
   className: PropTypes.string, // className to apply on the unveil component
   style: PropTypes.object, // style to apply on wrapper
   maxHeight: PropTypes.number, // height of "veiled" container
-  children: PropTypes.node,
   more: PropTypes.func, // render prop that receives a function "expand"
   less: PropTypes.func, // render prop that receives a function "collapse"
   onMoreClick: PropTypes.func, // callback when expanded
   onLessClick: PropTypes.func, // callback when collapsed
   expanded: PropTypes.bool, // whether or not to initially be expanded
-  poll: PropTypes.bool, // whether or not to continuously check for children resizing, not recommended for production
 };
 
 class Unveil extends Component {
@@ -36,7 +35,6 @@ class Unveil extends Component {
     more: DefaultMore,
     less: DefaultLess,
     expanded: false,
-    poll: false,
   };
 
   constructor(props) {
@@ -106,8 +104,8 @@ class Unveil extends Component {
   };
 
   render() {
-    // nothing to be done if no children provided
-    if (!this.props.children) {
+    // nothing to be done if no render prop provided
+    if (!this.props.render) {
       return null;
     }
 
@@ -115,7 +113,9 @@ class Unveil extends Component {
     const Invisible = (
       <div key="invisible" style={HIDDEN_STYLES}>
         <div ref={e => (this.invisible = e)}>
-          <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
+          <div ref={e => (this.childrenWrapper = e)}>
+            {this.props.render(this.markAsDirty)}
+          </div>
           {this.props.less ? this.props.less() : null}
         </div>
       </div>
@@ -141,7 +141,7 @@ class Unveil extends Component {
             height: this.state.childrenHeight,
           }}
         >
-          {this.props.children}
+          {this.props.render(this.markAsDirty)}
         </div>
         {this.state.childrenHeight <= this.props.maxHeight
           ? null
@@ -160,66 +160,4 @@ class Unveil extends Component {
   }
 }
 
-class AsyncUnveil extends Component {
-  static propTypes = UnveilPropTypes;
-
-  constructor(props) {
-    super(props);
-
-    this.unveilRef = {};
-  }
-
-  componentDidMount() {
-    if (this.props.poll) {
-      this.pollId = setInterval(() => {
-        this.setState({
-          isDirty: true,
-        });
-      }, 100);
-    }
-
-    this.forceUpdate(); // re-render after ref is populated
-  }
-
-  render() {
-    // inject notifyResize() when unveilRef is populated
-    return (
-      <Unveil ref={e => (this.unveilRef.ref = e)} {...this.props}>
-        {this.unveilRef.ref
-          ? React.Children.map(this.props.children, child => {
-              // if child is a DOMElement with onLoad, then append notifyResize() to it
-              // otherwise, inject it as a prop
-              if (isDOMElement(child) && shouldAppendNotifyResize(child)) {
-                return React.cloneElement(child, {
-                  onLoad: () => {
-                    child.props.onLoad();
-                    this.unveilRef.ref.markAsDirty();
-                  },
-                });
-              } else {
-                return React.cloneElement(child, {
-                  notifyResize: this.unveilRef.ref.markAsDirty,
-                });
-              }
-            })
-          : this.props.children}
-      </Unveil>
-    );
-  }
-
-  componentWillUnmount() {
-    if (this.props.poll) {
-      clearInterval(this.pollId);
-    }
-  }
-}
-
-function isDOMElement(el) {
-  return React.isValidElement(el) && typeof el.type === 'string';
-}
-
-function shouldAppendNotifyResize(el) {
-  return el.type === 'img';
-}
-
-export { AsyncUnveil, Unveil };
+export default Unveil;

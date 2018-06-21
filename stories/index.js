@@ -2,14 +2,14 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { AsyncUnveil, Unveil } from '../src/';
+import Unveil from '../src/';
 import './ball-spin-clockwise.min.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './styles.css';
 
 class AsyncComponent extends React.Component {
   static propTypes = {
-    notifyResize: PropTypes.func,
+    onComplete: PropTypes.func,
   };
 
   state = {
@@ -24,9 +24,7 @@ class AsyncComponent extends React.Component {
           height: 400,
           complete: true,
         },
-        () => {
-          this.props.notifyResize();
-        }
+        this.props.onComplete
       );
     }, 1000);
   }
@@ -71,7 +69,11 @@ const RichContent = props => {
     <div style={{ padding: 6 }}>
       <h1>An Essay I Wrote for Philosophy Class :)</h1>
       {props.withImage ? (
-        <img width="100%" src="https://placeimg.com/720/240/tech" />
+        <img
+          width="100%"
+          src="https://placeimg.com/720/240/tech"
+          onLoad={() => props.notifyResize()}
+        />
       ) : null}
       <p>
         One of the greatest philosophical questions is whether or not machines
@@ -172,60 +174,39 @@ const RichContent = props => {
 };
 
 storiesOf('React Unveil', module)
-  .add('with default configuration using ', () => {
+  .add('with default configuration', () => {
     return (
-      <AsyncUnveil>
-        <RichContent withImage />
-      </AsyncUnveil>
+      <Unveil
+        render={notifyResize => (
+          <RichContent notifyResize={notifyResize} withImage />
+        )}
+      />
     );
   })
-  .add('without Async wrapper', () => {
-    return (
-      <Unveil>
-        <RichContent />
-      </Unveil>
-    );
-  })
-  .add('Async wrapper no img test', () => {
-    return (
-      <AsyncUnveil poll>
-        <RichContent />
-      </AsyncUnveil>
-    );
-  })
-  .add('img test', () => {
-    return (
-      <AsyncUnveil>
-        <img
-          onLoad={() => console.log('der')}
-          src="https://placeimg.com/720/240/tech"
-        />
-      </AsyncUnveil>
-    );
-  })
-  .add('with async content with polling', () => (
-    <AsyncUnveil poll>
-      <AsyncComponent />
-    </AsyncUnveil>
-  ))
-  .add('with async ', () => (
-    <AsyncUnveil>
-      <AsyncComponent />
-    </AsyncUnveil>
+  .add('with async children', () => (
+    <Unveil
+      render={notifyResize => (
+        <AsyncComponent onComplete={() => notifyResize()} />
+      )}
+    />
   ))
   .add('with children shorter than maxHeight', () => (
-    <Unveil>
-      Hello World!
-      <ul>
-        <li>I'm</li>
-        <li>shorter</li>
-        <li>than</li>
-        <li>default</li>
-        <li>maxHeight</li>
-        <li>of</li>
-        <li>300px</li>
-      </ul>
-    </Unveil>
+    <Unveil
+      render={() => (
+        <React.Fragment>
+          Hello World!
+          <ul>
+            <li>I'm</li>
+            <li>shorter</li>
+            <li>than</li>
+            <li>default</li>
+            <li>maxHeight</li>
+            <li>of</li>
+            <li>300px</li>
+          </ul>
+        </React.Fragment>
+      )}
+    />
   ))
   .add('with custom show more and show less components', () => {
     const renderMore = expand => (
@@ -275,36 +256,48 @@ storiesOf('React Unveil', module)
     );
 
     return (
-      <AsyncUnveil more={renderMore} less={renderLess}>
-        <RichContent withImage />
-      </AsyncUnveil>
+      <Unveil
+        more={renderMore}
+        less={renderLess}
+        render={notifyResize => (
+          <RichContent notifyResize={notifyResize} withImage />
+        )}
+      />
     );
   })
   .add('with custom styles', () => (
-    <AsyncUnveil
+    <Unveil
       style={{
         border: '1px solid blue',
         padding: 4,
       }}
-    >
-      <RichContent />
-    </AsyncUnveil>
+      render={notifyResize => (
+        <RichContent notifyResize={notifyResize} withImage />
+      )}
+    />
   ))
   .add('with initially expanded state', () => (
-    <AsyncUnveil expanded>
-      <RichContent withImage />
-    </AsyncUnveil>
+    <Unveil
+      render={notifyResize => (
+        <RichContent notifyResize={notifyResize} withImage />
+      )}
+      expanded
+    />
   ))
   .add('with callbacks', () => (
-    <AsyncUnveil
+    <Unveil
+      render={notifyResize => (
+        <RichContent notifyResize={notifyResize} withImage />
+      )}
       onMoreClick={() => alert('Clicked more!')}
       onLessClick={() => alert('Clicked less!')}
-    >
-      <RichContent withImage />
-    </AsyncUnveil>
+    />
   ))
   .add('without show less button', () => (
-    <AsyncUnveil less={() => <div />}>
-      <RichContent withImage />
-    </AsyncUnveil>
+    <Unveil
+      render={notifyResize => (
+        <RichContent notifyResize={notifyResize} withImage />
+      )}
+      less={() => <div />}
+    />
   ));
