@@ -1,25 +1,77 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { AsyncUnveil, Unveil } from '../src/';
+import './ball-spin-clockwise.min.css';
 import './styles.css';
 
-const RichContent = props => {
-  console.log('render rich content');
-  console.log(props);
+class AsyncComponent extends React.Component {
+  static propTypes = {
+    notifyResize: PropTypes.func,
+  };
 
+  state = {
+    height: 100,
+    complete: false,
+  };
+
+  componentDidMount() {
+    this.timeoutId = setTimeout(() => {
+      this.setState(
+        {
+          height: 400,
+          complete: true,
+        },
+        () => {
+          this.props.notifyResize();
+        }
+      );
+    }, 1000);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timeoutId);
+  }
+
+  render() {
+    return (
+      <div
+        style={{
+          height: this.state.height,
+          border: '1px solid #49d7cb',
+          background: '#bffcee',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {this.state.complete ? (
+          'done async stuff!'
+        ) : (
+          <div className="la-ball-spin-clockwise la-2x">
+            <div />
+            <div />
+            <div />
+            <div />
+            <div />
+            <div />
+            <div />
+            <div />
+          </div>
+        )}
+      </div>
+    );
+  }
+}
+
+const RichContent = props => {
   return (
     <React.Fragment>
       <h1>An Essay I Wrote for Philosophy Class :)</h1>
-      <img
-        width="100%"
-        onLoad={() => {
-          console.log('done loading');
-          console.log(props);
-          props.notifyResize();
-        }}
-        src="https://placeimg.com/720/240/tech"
-      />
+      {props.withImage ? (
+        <img width="100%" src="https://placeimg.com/720/240/tech" />
+      ) : null}
       <p>
         One of the greatest philosophical questions is whether or not machines
         can “think”, brought up by Alan Turing almost a century ago. This
@@ -119,29 +171,46 @@ const RichContent = props => {
 };
 
 storiesOf('React Unveil', module)
-  .add('test', () => {
-    // render async, no polling
-    // some observer injected into it
+  .add('with default configuration using ', () => {
     return (
       <AsyncUnveil>
+        <RichContent withImage />
+      </AsyncUnveil>
+    );
+  })
+  .add('without Async wrapper', () => {
+    return (
+      <Unveil>
+        <RichContent />
+      </Unveil>
+    );
+  })
+  .add('Async wrapper no img test', () => {
+    return (
+      <AsyncUnveil poll>
         <RichContent />
       </AsyncUnveil>
     );
   })
-  .add('with default props', () => (
-    <Unveil>
-      <RichContent />
-    </Unveil>
-  ))
+  .add('img test', () => {
+    return (
+      <AsyncUnveil>
+        <img
+          onLoad={() => console.log('der')}
+          src="https://placeimg.com/720/240/tech"
+        />
+      </AsyncUnveil>
+    );
+  })
   .add('with async content with polling', () => (
-    <Unveil>
-      <AsyncComponent onComplete={undefined} />
-    </Unveil>
+    <AsyncUnveil poll>
+      <AsyncComponent />
+    </AsyncUnveil>
   ))
-  .add('with async content without polling', () => (
-    <Unveil>
-      <AsyncComponent onComplete={undefined} />
-    </Unveil>
+  .add('with async ', () => (
+    <AsyncUnveil>
+      <AsyncComponent />
+    </AsyncUnveil>
   ))
   .add('with children shorter than maxHeight', () => (
     <Unveil>
@@ -162,36 +231,36 @@ storiesOf('React Unveil', module)
     const More = expand => () => <div>Show More</div>;
     const Less = collapse => () => <div>Show More</div>;
     return (
-      <Unveil>
-        <RichContent />
-      </Unveil>
+      <AsyncUnveil>
+        <RichContent withImage />
+      </AsyncUnveil>
     );
   })
   .add('with custom styles', () => (
-    <Unveil
+    <AsyncUnveil
       style={{
         border: '1px solid blue',
         padding: 4,
       }}
     >
       <RichContent />
-    </Unveil>
+    </AsyncUnveil>
   ))
   .add('with initially expanded state', () => (
-    <Unveil expanded>
-      <RichContent />
-    </Unveil>
+    <AsyncUnveil expanded>
+      <RichContent withImage />
+    </AsyncUnveil>
   ))
   .add('with callbacks', () => (
-    <Unveil
+    <AsyncUnveil
       onMoreClick={() => alert('Clicked more!')}
       onLessClick={() => alert('Clicked less!')}
     >
-      <RichContent />
-    </Unveil>
+      <RichContent withImage />
+    </AsyncUnveil>
   ))
   .add('without show less button', () => (
-    <Unveil less={null}>
-      <RichContent />
-    </Unveil>
+    <AsyncUnveil less={() => <div />}>
+      <RichContent withImage />
+    </AsyncUnveil>
   ));
