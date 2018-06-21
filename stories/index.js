@@ -4,6 +4,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { AsyncUnveil, Unveil } from '../src/';
 import './ball-spin-clockwise.min.css';
+import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './styles.css';
 
 class AsyncComponent extends React.Component {
@@ -227,11 +228,54 @@ storiesOf('React Unveil', module)
     </Unveil>
   ))
   .add('with custom show more and show less components', () => {
-    // use bootstrap or something here
-    const More = expand => () => <div>Show More</div>;
-    const Less = collapse => () => <div>Show More</div>;
+    const renderMore = expand => (
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          padding: 8,
+        }}
+      >
+        <button
+          type="button"
+          className="btn btn-primary"
+          style={{
+            width: '100%',
+          }}
+          onClick={expand}
+        >
+          Show More
+        </button>
+      </div>
+    );
+
+    const renderLess = collapse => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          width: '100%',
+          padding: 8,
+        }}
+      >
+        <button
+          type="button"
+          className="btn btn-secondary"
+          style={{
+            width: '100%',
+          }}
+          onClick={collapse}
+        >
+          Show Less
+        </button>
+      </div>
+    );
+
     return (
-      <AsyncUnveil>
+      <AsyncUnveil more={renderMore} less={renderLess}>
         <RichContent withImage />
       </AsyncUnveil>
     );
