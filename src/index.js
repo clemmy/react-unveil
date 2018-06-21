@@ -84,7 +84,11 @@ class Unveil extends Component {
 
     // TODO: find a better solution
     // currently this race helps to render it properly when the component is initially expanded
-    setTimeout(this.markAsDirty, 500);
+    this.timeoutId = setTimeout(this.markAsDirty, 500);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.timeoutId);
   }
 
   markAsDirty = () => {
@@ -112,13 +116,13 @@ class Unveil extends Component {
       <div key="invisible" style={HIDDEN_STYLES}>
         <div ref={e => (this.invisible = e)}>
           <div ref={e => (this.childrenWrapper = e)}>{this.props.children}</div>
-          {this.props.less ? this.props.less()() : null}
+          {this.props.less ? this.props.less() : null}
         </div>
       </div>
     );
 
-    const ShowLess = this.props.less ? this.props.less(this.collapse)() : null;
-    const ShowMore = this.props.more ? this.props.more(this.expand)() : null;
+    const ShowLess = this.props.less ? this.props.less(this.collapse) : null;
+    const ShowMore = this.props.more ? this.props.more(this.expand) : null;
 
     // array instead of fragment for backwards compatability
     return [
@@ -145,7 +149,7 @@ class Unveil extends Component {
             ? ShowLess
             : ShowMore}
       </div>,
-      this.state.isDirty ? Invisible : null,
+      Invisible,
     ];
   }
 

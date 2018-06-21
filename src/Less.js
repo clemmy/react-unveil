@@ -26,7 +26,7 @@ const TEXT_STYLES = {};
 
 // ShowLess element part of regular document flow
 
-export default collapse => () => (
+export default collapse => (
   <div onClick={collapse} style={SHOW_LESS_STYLES}>
     <span style={TEXT_STYLES}>Show Less</span>
     <span style={CARET_UP_STYLES} />
