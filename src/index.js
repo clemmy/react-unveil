@@ -128,6 +128,7 @@ class Unveil extends Component {
     return [
       <div
         key="unveil"
+        className={this.props.className}
         style={{
           ...WRAPPER_STYLES,
           height: this.state.expanded
