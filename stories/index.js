@@ -8,10 +8,6 @@ import '../node_modules/bootstrap/dist/css/bootstrap.css';
 import './styles.css';
 
 class AsyncComponent extends React.Component {
-  static propTypes = {
-    onComplete: PropTypes.func,
-  };
-
   state = {
     height: 100,
     complete: false,
