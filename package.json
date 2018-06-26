@@ -1,6 +1,6 @@
 {
   "name": "react-unveil",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Lightweight and customizable React component that helps save real estate by limiting content height, with the option to expand and hide the content.",
   "main": "lib/react-unveil.js",
   "repository": "https://github.com/clemmy/react-unveil.git",
