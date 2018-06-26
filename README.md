@@ -12,7 +12,7 @@ The aim of this library is to support expanding and collapsing rich HTML. It doe
 
 ## Demo
 
-![react-unveil demo](https://raw.githubusercontent.com/clemmy/react-unveil/master/unveil.gif)
+![react-unveil demo](https://github.com/clemmy/react-unveil/raw/master/unveil.gif)
 
 ## Installation
 
